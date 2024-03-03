@@ -8,5 +8,6 @@ interface OrderRepositoryInterface
 {   
 
     public function insertOrder(DrinkOrder $order);
+    public function getEarningsByDrinkType(): array;  
 
 }
