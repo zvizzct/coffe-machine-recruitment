@@ -6,8 +6,10 @@
 require __DIR__.'/vendor/autoload.php';
 
 use Pdpaola\CoffeeMachine\Command\MakeDrinkCommand;
+use Pdpaola\CoffeeMachine\Command\ReportEarningsCommand;
 use Pdpaola\CoffeeMachine\Infrastructure\Database\MysqlPdoClient;
 use Pdpaola\CoffeeMachine\Repository\OrderRepository;
+use Pdpaola\CoffeeMachine\Service\ReportEarnings;
 use Pdpaola\CoffeeMachine\Service\InputValidator;
 use Pdpaola\CoffeeMachine\Service\OrderProcessor;
 use Symfony\Component\Console\Application;
@@ -15,17 +17,20 @@ use Symfony\Component\Console\Application;
 $pdoClient = new MysqlPdoClient();
 $pdo = $pdoClient->getPdo();
 
-// Instancias de los servicios y repositorios
+// service and repository instances
 $orderRepository = new OrderRepository($pdo);
+$earningsService = new ReportEarnings($orderRepository);
 $orderProcessor = new OrderProcessor($orderRepository);
 $inputValidator = new InputValidator();
 
-// Instancias de los comandos
+// command instances
 $makeDrinkCommand = new MakeDrinkCommand($inputValidator, $orderProcessor);
+$showEarningsCommand = new ReportEarningsCommand($earningsService);
 
-// Configuración de la aplicación y registro de comandos
+// app configuration and commands
 $application = new Application();
 $application->add($makeDrinkCommand);
+$application->add($showEarningsCommand);
 
 $application->run();
 
