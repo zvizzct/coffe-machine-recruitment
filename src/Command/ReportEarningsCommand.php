@@ -3,6 +3,7 @@ namespace Pdpaola\CoffeeMachine\Command;
 
 use Pdpaola\CoffeeMachine\Service\ReportEarnings;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -20,18 +21,24 @@ class ReportEarningsCommand extends Command
     {
         $this
             ->setName('app:report-earnings')
-            ->setDescription('Reports earnings per drink type.');
+            ->setDescription('reports earnings per drink type.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
             $earnings = $this->reportEarnings->calculateEarnings();
+            
+            $table = new Table($output);
+            $table->setHeaders(['Drink', 'Money']);
 
             foreach ($earnings as $drinkType => $money) {
                 $formattedMoney = number_format($money, 2);
-                $output->writeln("Drink: $drinkType, Earnings: \${$formattedMoney}");
+                $table->addRow([$drinkType, "\${$formattedMoney}"]);
             }
+
+            $table->render();
+
         } catch (\Exception $e) {
             $output->writeln('<error>Error: ' . $e->getMessage() . '</error>');
             return 0;
