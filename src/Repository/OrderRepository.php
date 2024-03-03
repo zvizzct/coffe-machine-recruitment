@@ -31,5 +31,22 @@ class OrderRepository implements OrderRepositoryInterface
             'extra_hot' => $order->isExtraHot(),
         ]);
     }
+     /**
+     * Get the earnings by drink type
+     * @return array
+     * 
+     */
+    public function getEarningsByDrinkType(): array
+    {
+        $prices = ['tea' => 0.4, 'coffee' => 0.5, 'chocolate' => 0.6];
+
+        $stmt = $this->pdo->query('SELECT drink_type, COUNT(*) as quantity FROM orders GROUP BY drink_type');
+        $earnings = [];
+        while ($row = $stmt->fetch()) {
+
+            $earnings[$row['drink_type']] = $row['quantity'] * ($prices[$row['drink_type']] ?? 0);
+        }
+        return $earnings;
+    }
 
 }
